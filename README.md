@@ -3,10 +3,10 @@ use AI to create lesson plans
 
 ## Docker deployment
 ~~~bash
-docker build -t proto .
+docker build -t weaver .
 
 # if .env file does not exist -> nano .env
-docker run -d --env-file .env -p 80:80 proto
+docker run -d --env-file .env -p 80:80 weaver
 ~~~
 
 ## Local Deployment
