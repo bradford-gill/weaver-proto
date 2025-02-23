@@ -47,7 +47,7 @@ def lesson_gen():
         "Learning Standards (one per line)", 
         value='Solve word problems involving multiplication and division within 100.',
         help="Enter the learning standards for the lesson plan. Put each standard on a new line.",
-        height=100
+        height=200
     )
 
     problem_type = st.text_input(
@@ -55,7 +55,7 @@ def lesson_gen():
         help="Specify the type of problem (e.g., multiple-choice, essay, etc.)."
     )
     number_of_problems = st.number_input(
-        "Number of problems", 
+        "Number of problems (between 3 and 15)", 
         min_value=3, 
         max_value=15,
         value=8, 
@@ -89,7 +89,7 @@ def lesson_gen():
 
                 Learning Standards: {learning_standards}
                 Problem Type: {problem_type}
-                Number of Problems: {number_of_problems}
+                Number of Problems{number_of_problems}
 
                 {standards_str}
                 ''',
@@ -122,7 +122,7 @@ def student_profile():
                 "name": "Bradford",
                 "learning_attributes": "Has trouble focusing when not intreguied, interested in skiing, trail running, mountian biking. Bad at spelling.",
                 "favorite_topics": "math",
-                "grade_level": "3",
+                "grade_level": "K",
             },
             {
                 "name": "Tobias",
@@ -134,7 +134,7 @@ def student_profile():
                 "name": "Jupiter",
                 "learning_attributes": "Big dreamer, Thinks outside the box. Likes snowboarding.",
                 "favorite_topics": "Science",
-                "grade_level": "1",
+                "grade_level": "4",
             },
         ]
     
@@ -200,6 +200,18 @@ def student_profile():
             st.write(student['grade_level'])
         else:
             st.info("No students found. Please add a student first.")
+
+    elif operation == "Delete Student":
+        if st.session_state.students:
+            student_names = [student["name"] for student in st.session_state.students]
+            selected_student = st.selectbox("Select Student to Delete", student_names)
+            
+            if st.button(f"Delete {selected_student}"):
+                student_index = student_names.index(selected_student)
+                deleted_student = st.session_state.students.pop(student_index)
+                st.success(f"Student '{deleted_student['name']}' deleted successfully.")
+        else:
+            st.info("No students available to delete. Please add a student first.")
     
 
 def main():
