@@ -3,6 +3,7 @@ import streamlit as st
 import itertools
 import os
 from utils import check_password
+import random
 
 st.set_page_config(
     page_title="Weaver - Edu AI",
@@ -42,12 +43,15 @@ def lesson_gen():
     )
     
     # Text inputs and number input for the additional fields
-    learning_standards = st.text_input(
-        "Learning Standards", 
-        help="Enter the learning standards for the lesson plan."
+    learning_standards = st.text_area(
+        "Learning Standards (one per line)", 
+        value='Solve word problems involving multiplication and division within 100.',
+        help="Enter the learning standards for the lesson plan. Put each standard on a new line.",
+        height=100
     )
+
     problem_type = st.text_input(
-        "Problem type", 
+        "Activity type", 
         help="Specify the type of problem (e.g., multiple-choice, essay, etc.)."
     )
     number_of_problems = st.number_input(
@@ -73,6 +77,8 @@ def lesson_gen():
                 Incorperate the students interests into the problems to make it more engaging.
 
                 At the top of each plan please have a line to put name and date, as a childs homework might look like.
+
+                At the bottom, please have directions for solving including step by step instructions that are appropraite by grade level. 
                 ''',
             },
             {
@@ -80,7 +86,6 @@ def lesson_gen():
                 'content': f'''
 
                 Student: {selected_student}
-
 
                 Learning Standards: {learning_standards}
                 Problem Type: {problem_type}
@@ -99,6 +104,7 @@ def lesson_gen():
             )
         
         response = st.write_stream(stream)
+
         st.download_button(
             label="Download lesson plan as a .txt",
             data=response,              # The string content you want to download
@@ -113,20 +119,23 @@ def student_profile():
     if "students" not in st.session_state:
         st.session_state["students"] = [
             {
-                    "name": "Bradford",
-                    "learning_attributes": "Has trouble focusing when not intreguied, interested in skiing, trail running, mountian biking. Bad at spelling.",
-                    "favorite_topics": "math",
-                },
-                {
-                    "name": "Tobias",
-                    "learning_attributes": "Deep thinker, likes skiing and being in the out doors",
-                    "favorite_topics": "Science",
-                },
-                {
-                    "name": "Jupiter",
-                    "learning_attributes": "Big dreamer, Thinks outside the box. Likes snowboarding.",
-                    "favorite_topics": "Science",
-                },
+                "name": "Bradford",
+                "learning_attributes": "Has trouble focusing when not intreguied, interested in skiing, trail running, mountian biking. Bad at spelling.",
+                "favorite_topics": "math",
+                "grade_level": "3",
+            },
+            {
+                "name": "Tobias",
+                "learning_attributes": "Deep thinker, likes skiing and being in the out doors",
+                "favorite_topics": "Science",
+                "grade_level": "2",
+            },
+            {
+                "name": "Jupiter",
+                "learning_attributes": "Big dreamer, Thinks outside the box. Likes snowboarding.",
+                "favorite_topics": "Science",
+                "grade_level": "1",
+            },
         ]
     
     operation = st.radio("Select Operation", ["View Student", "Add New Student", "Edit Student"])
@@ -134,8 +143,9 @@ def student_profile():
     if operation == "Add New Student":
         with st.form("add_student_form"):
             student_name = st.text_input("Student Name")
-            learning_attributes_str = st.text_input("List of Learning Attributes (comma separated)")
-            favorite_topics_str = st.text_input("Favorite Topics (comma separated)")
+            learning_attributes_str = st.text_input("List of Learner Attributes (comma separated)")
+            favorite_topics_str = st.text_input("Interests (comma separated)")
+            grade_level = st.selectbox("Grade Level", ["K", "1", "2", "3", "4", "5", "6", "7", "8"])
             submitted = st.form_submit_button("Add Student")
             if submitted:
                 learning_attributes = [attr.strip() for attr in learning_attributes_str.split(",") if attr.strip()]
@@ -144,6 +154,7 @@ def student_profile():
                     "name": student_name,
                     "learning_attributes": learning_attributes,
                     "favorite_topics": favorite_topics,
+                    "grade_level": grade_level,
                 }
                 st.session_state.students.append(new_student)
                 st.success(f"Student '{student_name}' added successfully.")
@@ -157,8 +168,9 @@ def student_profile():
             
             with st.form("edit_student_form"):
                 new_name = st.text_input("Student Name", value=student["name"])
-                new_learning_attributes_str = st.text_input("List of Learning Attributes (comma separated)", student["learning_attributes"])
-                new_favorite_topics_str = st.text_input("Favorite Topics (comma separated)", student["favorite_topics"])
+                new_learning_attributes_str = st.text_input("List of Learner Attributes (comma separated)", student["learning_attributes"])
+                new_favorite_topics_str = st.text_input("Interests (comma separated)", student["favorite_topics"])
+                new_grade_level = st.selectbox("Grade Level", ["K", "1", "2", "3", "4", "5", "6", "7", "8"], index=["K", "1", "2", "3", "4", "5", "6", "7", "8"].index(student["grade_level"]))
                 submitted_edit = st.form_submit_button("Save Changes")
 
                 if submitted_edit:
@@ -166,6 +178,7 @@ def student_profile():
                         "name": new_name,
                         "learning_attributes": new_learning_attributes_str,
                         "favorite_topics": new_favorite_topics_str,
+                        "grade_level": new_grade_level,
                     }
                     st.success(f"Student '{new_name}' updated successfully.")
         else:
@@ -179,10 +192,12 @@ def student_profile():
             student = st.session_state.students[student_index]
 
             st.subheader(f"Student: {student['name']}")
-            st.markdown("**Learning Attributes:**")
+            st.markdown("**Learner Attributes:**")
             st.write(student['learning_attributes'])
-            st.markdown("**Favorite Topics:**")
+            st.markdown("**Interests:**")
             st.write(student['favorite_topics'])
+            st.markdown("**Grade Level:**")
+            st.write(student['grade_level'])
         else:
             st.info("No students found. Please add a student first.")
     
