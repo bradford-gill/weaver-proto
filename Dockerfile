@@ -11,7 +11,6 @@ COPY requirements.txt /app/
 # Install the dependencies
 RUN uv pip install --no-cache-dir -r requirements.txt --system
 
-
 # Copy the rest of the application code to the working directory
 COPY . /app/
 
